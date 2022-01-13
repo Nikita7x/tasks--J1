@@ -23,11 +23,14 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
             image_raw_content = validated_data.get('file')
         else:
             raise serializers.ValidationError("You must specify <url> or <file> parameter")
+        # image_raw_content = image: <BYTES>
 
         image = Image.open(image_raw_content)
-
+        # image_path_data = "waterfall.jpg" <- https://imgur.com/gallery/>>waterfall.jpg<<
         image_path_data = os.path.basename(validated_data.get('url') or validated_data.get('file').name)
+        # image_name, image_extension = ("waterfall",".jpg")
         image_name, image_extension = ImageHandler.get_name_and_extension(image_path_data)
+        # saved_image_name = "waterfall_320_240.jpg"
         saved_image_name = ImageHandler(image).save(image_name, image_extension)
 
         return Images.objects.create(name=image_name + image_extension,

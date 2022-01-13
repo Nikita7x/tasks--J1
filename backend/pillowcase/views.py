@@ -17,14 +17,21 @@ class ImagesViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], serializer_class=ImageResizeSerializer)
     def resize(self, request, *args, **kwargs):
+        # get imageObject <- (models.Images)
         imageObject = self.get_object()
+
+        # imageObject.name = "waterfall.jpg"
         old_image_name, old_image_extension = ImageHandler.get_name_and_extension(imageObject.name)
+        # old_image_name, old_image_extension = ("waterfall",".jpg")
         old_image_path = ImageHandler.get_name_with_dimensions(imageObject)
+        # old_image_path = "waterfall_320_240.jpg"
         serializer = ImageResizeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        image = Image.open(f'{settings.MEDIA_ROOT}/{old_image_path}')
+        image = Image.open(f'{settings.MEDIA_ROOT}/{old_image_path}')  # loads "waterfall_320_240.jpg"
+        # performs resizing of "waterfall_320_240.jpg"
         resized_image = image.resize((int(serializer.data['width']), int(serializer.data['height'])))
+        # saved_image_name = "waterfall_80_60.jpg"
         saved_image_name = ImageHandler(resized_image).save(old_image_name, old_image_extension)
 
         newImage = Images.objects.create(
@@ -45,7 +52,10 @@ class ImagesViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk):
         queryset = Images.objects.all()
         image = get_object_or_404(queryset, pk=pk)
+        # image_path = "waterfall_320_240.jpg"
         image_path = ImageHandler.get_name_with_dimensions(image)
+        # delete file from MEDIA folder
         os.remove(f'{settings.MEDIA_ROOT}/{image_path}')
+        # delete from database
         image.delete()
         return Response(status=204)
