@@ -1,7 +1,6 @@
 import os
 import sys
 import unittest
-import faker.config
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,7 +13,6 @@ DEBUG = os.getenv("DEBUG", "True") == "True" and not TESTING
 
 ALLOWED_HOSTS = ["*"]
 
-os.environ['db_password'] = 'postgres'
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,10 +70,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': os.getenv('db_password'),
-        'HOST': 'localhost',
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
         'PORT': 5432,
     }
 }

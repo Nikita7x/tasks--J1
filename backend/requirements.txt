@@ -1,0 +1,9 @@
+Django
+django-debug-toolbar
+psycopg2-binary
+psycopg2
+djangorestframework
+Pillow
+requests
+faker
+postgres
