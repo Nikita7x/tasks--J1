@@ -1,0 +1,31 @@
+version: '3.7'
+
+x-app_environment: &app_environment
+  environment:
+    - DEBUG=True
+    - POSTGRES_PASSWORD=postgres
+
+
+services:
+  backend:
+    image: ${CI_REGISTRY_IMAGE}/backend:${TAG:-latest}
+    build:
+      context: ./backend
+    <<: *app_environment
+
+  db:
+    image: postgres:12.3-alpine
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    <<: *app_environment
+
+
+  redis:
+    image: redis:6.0-alpine
+    volumes:
+      - redisdata:/data
+
+volumes:
+  static:
+  redisdata:
+  postgresdata:

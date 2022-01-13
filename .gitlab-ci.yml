@@ -1,0 +1,52 @@
+image: tiangolo/docker-with-compose
+
+variables:
+  DOCKER_DRIVER: overlay2
+  CI_DEBUG_SERVICES: trace
+
+services:
+  - docker:19.03.1-dind
+
+.before_script_docker_login: &before_script_docker_login
+  echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+
+before_script:
+  - *before_script_docker_login
+
+stages:
+  - build
+  - test
+
+build_backend:
+  stage: build
+  script:
+    - TAG=${CI_COMMIT_REF_NAME} docker-compose -f docker-compose.yml -f docker-compose.production.yml pull backend || true
+    - TAG=${CI_COMMIT_REF_NAME} CACHE_FROM_TAG=${CI_COMMIT_REF_NAME} docker-compose -f docker-compose.yml -f docker-compose.production.yml build backend
+    - TAG=${CI_COMMIT_REF_NAME} docker-compose -f docker-compose.yml -f docker-compose.production.yml push backend
+  only:
+    changes:
+      - backend/**/*
+      - .gitlab-ci.yml
+      - docker-compose.yml
+      - docker-compose.production.yml
+
+test_internal:
+  stage: test
+  script:
+    - docker pull ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_NAME}
+    - >
+      TAG=${CI_COMMIT_REF_NAME} docker-compose -f docker-compose.yml
+      run --rm backend /bin/sh -c "coverage run --source='.' manage.py test --noinput && coverage report --skip-covered"
+  only:
+    changes:
+      - backend/**/*
+      - .gitlab-ci.yml
+      - docker-compose.yml
+      - docker-compose.production.yml
+
+test_trigger:
+  stage: test
+  variables:
+    DOCKER_IMAGE_BACKEND_CI_COMMIT_SHA: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_NAME}
+  script:
+    - curl --location -g --request POST "https://contest.idacloud.ru/api/v4/projects/3/ref/master/trigger/pipeline?token=$TOKEN_FOR_RUN_TESTING&variables[DOCKER_IMAGE_BACKEND_CI_COMMIT_SHA]=$DOCKER_IMAGE_BACKEND_CI_COMMIT_SHA"

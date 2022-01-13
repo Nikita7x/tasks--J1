@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  backend:
+    image: alpine
+    restart: unless-stopped
+    volumes:
+      - ./backend/:/app/:cached
+      - static:/app/static/:delegated
+    entrypoint: sh wait-for db:5432 -- ./entrypoint.sh
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+    ports:
+    - 8000:8000
+
+  db:
+    restart: unless-stopped
+    ports:
+      - 15202:5432

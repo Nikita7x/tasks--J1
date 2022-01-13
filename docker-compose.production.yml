@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  backend:
+    restart: always
+    build:
+      context: ./backend
+      cache_from: ["${CI_REGISTRY_IMAGE}/backend:${CACHE_FROM_TAG:-latest}"]
+      args:
+        POETRY_PARAMS: "--no-dev"
+    entrypoint: sh wait-for db:5432 -- ./entrypoint.production.sh
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DEBUG=False
+    depends_on:
+      - db
+    volumes:
+      - static:/app/static/:delegated
+    logging:
+      driver: journald
+      options:
+        tag: backend
+
+  db:
+    restart: always
+    ports:
+      - 127.0.0.1:5432:5432
+    command: postgres -c 'shared_buffers=256MB' -c 'work_mem=8MB'
+    logging:
+      driver: journald
+      options:
+        tag: db
+
+  redis:
+    restart: always
+    logging:
+      driver: journald
+      options:
+        tag: redis
+
+volumes:
+  local_static:
+  nuxt:
+  acme.sh:
+  certs:
+  static:
+  redisdata:
+  postgresdata:

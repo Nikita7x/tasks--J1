@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "Test task main"
+version = "0.1.0"
+description = ""
+authors = ["Egor Ponyavin <ep@idaproject.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+psycopg2 = "~2.8.5"
+# Django
+Django = "==3.1.6"
+# Django Rest Framework
+djangorestframework = "~3.11.0"
+# third
+requests = "~2.23.0"
+Pillow-SIMD = "~7.0.0.post3"
+cryptography = "2.1.4"
+
+# Testing
+factory-boy = "~2.12.0"
+coverage = "~5.1.0"
+
+[tool.poetry.dev-dependencies]
+django-debug-toolbar = "2.2"
+
+[tool.black]
+line-length = 100
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
