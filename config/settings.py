@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.getenv("SECRET_KEY", "rw+t6fn87n-r+9%$s^r8hvja2yux(rz#!8th3_1^e2^z-9!3!l")
+SECRET_KEY = os.getenv("SECRET_KEY", "rw+t6fn87n-r+9%$s^r8hhja2yux(rz#!8th3_1^e2^z-9!3!l")
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
@@ -24,9 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django.forms",
-    # third party
     "rest_framework",
-    # apps
     "pillowcase"
 ]
 
